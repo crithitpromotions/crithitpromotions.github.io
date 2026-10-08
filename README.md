@@ -52,3 +52,7 @@ Rewrite the full `days` list on every run rather than appending, since both sour
 ## New project
 
 Copy an existing project folder to `<shortname>-<8 random hex characters>/`, replace the JSON block, and add a row to the table above.
+
+## Replay (finished campaigns)
+
+A project's JSON may carry an optional `replay` object: `{ "end": "YYYY-MM-DD", "reach": { "YYYY-MM-DD": 1601 } }`. The dashboard then shows a day stepper, and `?asof=YYYY-MM-DD` renders the page as it stood at the end of that day. `end` is the campaign's last day; `reach` holds Meta's cumulative reach from the first day through each day that had spend. The daily update does not need to write it.

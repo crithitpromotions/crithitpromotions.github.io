@@ -20,13 +20,45 @@
   var dayFmt = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
   var dayLong = new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
 
+  /* ---------- replay (optional): step through a finished campaign one day at a time ----------
+     Present only when the data has a "replay" object: { "end": "YYYY-MM-DD", "reach": { "YYYY-MM-DD": n } }.
+     ?asof=YYYY-MM-DD shows the page as it stood at the end of that day. */
+  if (D.replay && D.days && D.days.length) (function () {
+    var all = D.days.map(function (r) { return r.d; }).sort();
+    var list = [];
+    for (var t = parseDay(all[0]).getTime(), e = parseDay(all[all.length - 1]).getTime(); t <= e; t += 864e5) list.push(new Date(t).toISOString().slice(0, 10));
+    var asof = new URLSearchParams(location.search).get('asof');
+    var i = list.indexOf(asof), live = i < 0;
+    var link = function (d) { return d ? '?asof=' + d : location.pathname; };
+    var bar = el('div', 'replay');
+    bar.innerHTML =
+      '<span class="rl">' + (live ? 'Replay this campaign day by day' : 'Day ' + (i + 1) + ' of ' + list.length + ', ' + dayLong.format(parseDay(asof))) + '</span>' +
+      '<input type="range" min="0" max="' + (list.length - 1) + '" value="' + (live ? list.length - 1 : i) + '" aria-label="Day of the campaign">' +
+      '<span class="rb">' +
+        (live ? '<a href="' + link(list[0]) + '">Start at day 1</a>'
+              : (i > 0 ? '<a href="' + link(list[i - 1]) + '">Previous day</a>' : '') +
+                (i < list.length - 1 ? '<a href="' + link(list[i + 1]) + '">Next day</a>' : '') +
+                '<a href="' + link(null) + '">Final</a>') +
+      '</span>';
+    bar.querySelector('input').addEventListener('change', function () { location.href = link(list[+this.value]); });
+    var title = document.querySelector('.title'); title.parentNode.insertBefore(bar, title);
+    if (live) return;
+    var today = D.days.filter(function (r) { return r.d === asof; })[0];
+    D.days = D.days.filter(function (r) { return r.d <= asof; });
+    var reach = null; Object.keys(D.replay.reach || {}).sort().forEach(function (d) { if (d <= asof) reach = D.replay.reach[d]; });
+    if (D.meta) D.meta.reach = reach;
+    D.status = today && +today.spend > 0 ? 'Running' : (asof > D.replay.end ? 'Ended' : 'Paused');
+    D.updated = null;
+    $('updated').dataset.replay = 'As it stood at the end of ' + dayFmt.format(parseDay(asof));
+  })();
+
   /* ---------- header ---------- */
   document.title = D.project + ' | Crit Hit Promotions';
   $('project').textContent = D.project;
   var statusKey = (D.status || '').toLowerCase();
   $('status').dataset.s = statusKey.indexOf('running') === 0 ? 'running' : statusKey.indexOf('paused') === 0 ? 'paused' : 'other';
   $('status-text').textContent = D.status || '';
-  $('updated').textContent = D.updated ? 'Updated ' + D.updated : '';
+  $('updated').textContent = D.updated ? 'Updated ' + D.updated : ($('updated').dataset.replay || '');
 
   var days = (D.days || []).slice().sort(function (a, b) { return a.d < b.d ? -1 : 1; });
   var keys = ['spend', 'impr', 'clicks', 'lpv', 'mp', 's', 'gp'];
