@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="referrer" content="no-referrer">
+<title>Dashboard | Crit Hit Promotions</title>
+<link rel="icon" href="../assets/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/dashboard.css">
+</head>
+<body>
+<header class="wrap dash-top">
+  <a class="brand" href="../"><img class="logo-img" src="../assets/mark.png" alt="">Crit Hit Promotions</a>
+  <div class="updated" id="updated"></div>
+</header>
+
+<main class="wrap">
+  <div class="title">
+    <h1 id="project"></h1>
+    <div class="sub"><span class="status" id="status"><i></i><span id="status-text"></span></span><span id="period"></span></div>
+  </div>
+
+  <div id="empty" class="empty" hidden>
+    <h2>No ad activity yet</h2>
+    <p id="empty-note">Numbers show up here the morning after the first ads run.</p>
+  </div>
+
+  <div id="content">
+    <div class="cols">
+      <div class="stack">
+      <section class="panel meta">
+        <header><h2><i></i>Meta Ads</h2><small id="meta-src"></small></header>
+        <div class="tiles" id="meta-tiles"></div>
+      </section>
+      <section class="panel chart" id="c-spend"><h3>Spend per day</h3><div class="legend"></div><div class="plot"></div></section>
+      </div>
+
+      <section class="panel ga">
+        <header><h2><i></i>Analytics</h2><small id="ga-src"></small></header>
+        <div class="tiles" id="ga-tiles"></div>
+        <div class="compare">
+          <h3>Getting to the page</h3>
+          <div class="bars" id="cmp-traffic"></div>
+          <h3>Purchases, by who counted</h3>
+          <div class="bars" id="cmp-purch"></div>
+          <div class="range"><div class="k">Cost per purchase, depending on the source</div><div class="v" id="cpp-range"></div></div>
+          <p class="note" id="note"></p>
+        </div>
+      </section>
+    </div>
+
+    <div class="charts">
+      <section class="panel chart" id="c-traffic"><h3>Clicks sent, sessions received</h3><div class="legend"></div><div class="plot"></div></section>
+      <section class="panel chart" id="c-purch"><h3>Purchases per day</h3><div class="legend"></div><div class="plot"></div></section>
+    </div>
+
+    <section class="panel daily">
+      <header><h2>Day by day</h2></header>
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr class="groups"><th></th><th colspan="5"><i style="background:var(--meta)"></i>Meta Ads</th><th colspan="2" class="sep"><i style="background:var(--ga)"></i>Analytics</th></tr>
+            <tr><th>Day</th><th>Spend</th><th>Impressions</th><th>Link clicks</th><th>Page loads</th><th>Purchases</th><th class="sep">Sessions</th><th>Purchases</th></tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="wrap dash-foot">
+  <p id="sources"></p>
+  <p>Analytics figures count only visits that arrived from the paid ads. Sales value is left out because neither source records it reliably.</p>
+</footer>
+
+<!-- DATA:START (the daily update replaces only the JSON between these two markers) -->
+<script id="data" type="application/json">
+{
+  "project": "Halfling Culinary Traditions",
+  "status": "Not started",
+  "updated": "8 Oct 2026, 21:50 Athens time",
+  "currency": "EUR",
+  "meta": {
+    "account": "Crit Hit Promotions",
+    "campaigns": [],
+    "reach": null
+  },
+  "analytics": {
+    "property": "Culinary Traditions",
+    "filter": "sessions with medium \"paid\""
+  },
+  "note": "Neither source sees every pledge, so treat the two counts as a range. Kickstarter's referrer report has the real total.",
+  "empty_note": "The Halfling ads haven't started. Numbers show up here the morning after the first ads run.",
+  "days": [
+  ]
+}
+</script>
+<!-- DATA:END -->
+<script src="../assets/dashboard.js"></script>
+</body>
+</html>

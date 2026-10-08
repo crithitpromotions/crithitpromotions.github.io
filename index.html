@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crit Hit Promotions</title>
+<meta name="description" content="Crit Hit Promotions runs ads for tabletop RPG Kickstarters and shows the numbers every day.">
+<link rel="icon" href="assets/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<header class="wrap top">
+  <a class="brand" href="./"><img class="logo-img" src="assets/mark.png" alt="">Crit Hit Promotions</a>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div>
+      <h1>Launch day, rolled with advantage.</h1>
+      <p class="lede">Crit Hit Promotions runs the ads for tabletop RPG Kickstarters, then shows you what they did. Every project gets its own dashboard, refreshed each morning.</p>
+    </div>
+    <div class="die">
+      <button id="die" type="button" aria-label="Roll the d20">
+        <img src="assets/mark.png" alt="">
+      </button>
+      <div class="result" aria-live="polite">
+        <strong id="roll">Roll for initiative</strong>
+        <span id="quip" class="hint">Tap the die.</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="what">
+    <div>
+      <h2>Ads that find the table</h2>
+      <p>Meta campaigns aimed at people who already back games like yours, not at everyone with a dice emoji in their bio.</p>
+    </div>
+    <div>
+      <h2>A dashboard per project</h2>
+      <p>Spend, clicks and purchases on one page with a private link. No login, no weekly PDF, no waiting for a report.</p>
+    </div>
+    <div>
+      <h2>Two counts, side by side</h2>
+      <p>Meta's numbers sit next to Google Analytics', because neither sees every pledge. You get both and judge for yourself.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap foot">© 2026 Crit Hit Promotions</footer>
+
+<script>
+(function () {
+  var die = document.getElementById('die'), roll = document.getElementById('roll'), quip = document.getElementById('quip');
+  var lines = [
+    [1, 1, 'Critical fumble. The budget fell in the stew.'],
+    [2, 7, 'A miss. Reheat and try again.'],
+    [8, 13, 'A solid hit. The tavern is filling up.'],
+    [14, 19, 'Well struck. Second helpings all round.'],
+    [20, 20, 'Critical hit! Funded before second breakfast.']
+  ];
+  die.addEventListener('click', function () {
+    var n = 1 + Math.floor(Math.random() * 20);
+    die.classList.remove('rolling'); void die.offsetWidth; die.classList.add('rolling');
+    var line = lines.filter(function (l) { return n >= l[0] && n <= l[1]; })[0];
+    roll.textContent = n === 20 ? 'Natural 20' : 'You rolled ' + n;
+    quip.textContent = line[2];
+    quip.className = '';
+  });
+})();
+</script>
+</body>
+</html>
