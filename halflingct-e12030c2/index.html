@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/site.css">
-<link rel="stylesheet" href="../assets/dashboard.css?v=2">
+<link rel="stylesheet" href="../assets/dashboard.css?v=3">
 </head>
 <body>
 <header class="wrap dash-top">
@@ -54,6 +54,27 @@
       </section>
     </div>
 
+    <section class="panel ks" id="ks" hidden>
+      <header><h2><i></i>Kickstarter</h2><small id="ks-src"></small></header>
+      <div class="tiles" id="ks-tiles"></div>
+      <div class="ks-split">
+        <div>
+          <h3>By ad link</h3>
+          <div class="scroll">
+            <table class="links">
+              <thead><tr><th>Ad link</th><th>Spend</th><th>Pledges</th><th>Pledged</th><th>Back per €1</th><th>Cost per pledge</th></tr></thead>
+              <tbody id="ks-links"></tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <h3>Where all pledges came from</h3>
+          <div class="bars wide" id="ks-channels"></div>
+        </div>
+      </div>
+      <p class="note" id="ks-note"></p>
+    </section>
+
     <div class="charts">
       <section class="panel chart" id="c-traffic"><h3>Clicks sent, sessions received</h3><div class="legend"></div><div class="plot"></div></section>
       <section class="panel chart" id="c-purch"><h3>Purchases per day</h3><div class="legend"></div><div class="plot"></div></section>
@@ -64,8 +85,8 @@
       <div class="scroll">
         <table>
           <thead>
-            <tr class="groups"><th></th><th colspan="5"><i style="background:var(--meta)"></i>Meta Ads</th><th colspan="2" class="sep"><i style="background:var(--ga)"></i>Analytics</th></tr>
-            <tr><th>Day</th><th>Spend</th><th>Impressions</th><th>Link clicks</th><th>Page loads</th><th>Purchases</th><th class="sep">Sessions</th><th>Purchases</th></tr>
+            <tr class="groups"><th></th><th colspan="5"><i style="background:var(--meta)"></i>Meta Ads</th><th colspan="2" class="sep"><i style="background:var(--ga)"></i>Analytics</th><th colspan="2" class="sep ks-col"><i style="background:var(--ks)"></i>Kickstarter ad links</th></tr>
+            <tr><th>Day</th><th>Spend</th><th>Impressions</th><th>Link clicks</th><th>Page loads</th><th>Purchases</th><th class="sep">Sessions</th><th>Purchases</th><th class="sep ks-col">Pledges</th><th class="ks-col">Pledged</th></tr>
           </thead>
           <tbody id="rows"></tbody>
         </table>
@@ -76,7 +97,7 @@
 
 <footer class="wrap dash-foot">
   <p id="sources"></p>
-  <p>Analytics figures count only visits that arrived from the paid ads. Sales value is left out because neither source records it reliably.</p>
+  <p id="foot-note">Analytics figures count only visits that arrived from the paid ads. Sales value is left out because neither source records it reliably.</p>
 </footer>
 
 <!-- DATA:START (the daily update replaces only the JSON between these two markers) -->
@@ -88,212 +109,92 @@
   "currency": "EUR",
   "meta": {
     "account": "Crit Hit Promotions",
-    "campaigns": [
-      "Halfling CT"
-    ],
+    "campaigns": ["Halfling CT"],
     "reach": 7426
   },
   "analytics": {
     "property": "Culinary Traditions",
     "filter": "sessions with medium \"paid\""
   },
-  "note": "Neither source sees every pledge, so treat the two counts as a range. Kickstarter's referrer report has the real total.",
+  "note": "Meta and Analytics each miss pledges in their own way. Kickstarter's count of pledges through the ad links, below, is the one to trust.",
   "empty_note": "The Halfling ads haven't started. Numbers show up here the morning after the first ads run.",
+  "kickstarter": {
+    "rename": {
+      "bk-ec-85594": "BackerKit"
+    },
+    "ad_links": [
+      {
+        "ref": "Ads Targeted",
+        "label": "Past backers retargeting",
+        "adsets": ["120248514588610225"],
+        "spend": 69.43
+      },
+      {
+        "ref": "Ads US",
+        "label": "US prospecting (broad and KS interest)",
+        "adsets": ["120248514889970225", "120248514587160225"],
+        "spend": 334.0
+      },
+      {
+        "ref": "Ads EU",
+        "label": "EU prospecting",
+        "adsets": ["120248514587930225"],
+        "spend": 70.82
+      }
+    ],
+    "days": [
+      {"d": "2026-10-12", "by": {"Ads Targeted": [3, 92.0], "Ads US": [1, 148.0], "Kickstarter emails": [61, 1258.0], "Kickstarter pages and app": [12, 287.0], "Newsletter": [1, 11.0], "Posts": [1, 11.0]}},
+      {"d": "2026-10-13", "by": {"Ads Targeted": [1, 19.0], "Ads US": [2, 165.0], "Kickstarter emails": [14, 306.0], "Kickstarter pages and app": [5, 122.0], "Newsletter": [1, 26.0], "Posts": [2, 34.0]}},
+      {"d": "2026-10-14", "by": {"Ads Targeted": [4, 342.0], "Ads US": [1, 23.0], "Kickstarter emails": [5, 97.0], "Kickstarter pages and app": [1, 23.0], "Posts": [1, 25.0]}},
+      {"d": "2026-10-15", "by": {"Ads EU": [1, 23.0], "Ads US": [1, 53.0], "Cross Promo": [1, 148.0], "Kickstarter emails": [4, 83.0], "Kickstarter pages and app": [3, 160.0], "Newsletter": [9, 361.0], "Posts": [1, 11.0]}},
+      {"d": "2026-10-16", "by": {"Kickstarter emails": [1, 31.0], "Newsletter": [1, 11.0], "Other websites": [1, 33.0]}},
+      {"d": "2026-10-17", "by": {"Kickstarter pages and app": [3, 209.0]}},
+      {"d": "2026-10-18", "by": {"Ads Targeted": [1, 148.0], "Kickstarter emails": [2, 63.0], "Kickstarter pages and app": [1, 11.0]}},
+      {"d": "2026-10-19", "by": {"Kickstarter emails": [1, 43.0], "Newsletter": [1, 25.0]}},
+      {"d": "2026-10-20", "by": {"Kickstarter emails": [2, 28.0], "Kickstarter pages and app": [1, 13.0], "Newsletter": [1, 23.0]}},
+      {"d": "2026-10-21", "by": {"Ads US": [1, 17.0], "Kickstarter emails": [1, 148.0], "Kickstarter pages and app": [1, 11.0]}},
+      {"d": "2026-10-22", "by": {"Kickstarter emails": [1, 50.0]}},
+      {"d": "2026-10-23", "by": {"BackerKit": [1, 33.0], "Kickstarter pages and app": [1, 1.0]}},
+      {"d": "2026-10-25", "by": {"Kickstarter pages and app": [1, 23.0]}},
+      {"d": "2026-10-29", "by": {"Kickstarter pages and app": [1, 11.0]}},
+      {"d": "2026-10-31", "by": {"Ads Targeted": [1, 11.0]}},
+      {"d": "2026-11-02", "by": {"Kickstarter pages and app": [1, 41.0]}},
+      {"d": "2026-11-03", "by": {"BackerKit": [1, 23.0], "Newsletter": [1, 23.0]}},
+      {"d": "2026-11-04", "by": {"Cross Promo": [1, 11.0], "Kickstarter pages and app": [2, 28.0]}},
+      {"d": "2026-11-05", "by": {"Kickstarter pages and app": [2, 30.0], "Newsletter": [1, 11.0]}},
+      {"d": "2026-11-06", "by": {"BackerKit": [1, 33.0]}},
+      {"d": "2026-11-07", "by": {"Kickstarter pages and app": [4, 141.0]}},
+      {"d": "2026-11-08", "by": {"Kickstarter pages and app": [1, 19.0]}},
+      {"d": "2026-11-09", "by": {"Kickstarter pages and app": [1, 17.0]}}
+    ],
+    "exported": "2026-11-09T08:23",
+    "through": "2026-11-09",
+    "dropped": [0, 0.0]
+  },
   "days": [
-    {
-      "d": "2026-10-12",
-      "spend": 57.44,
-      "impr": 2051,
-      "clicks": 36,
-      "lpv": 27,
-      "mp": 2,
-      "s": 19,
-      "gp": 1
-    },
-    {
-      "d": "2026-10-13",
-      "spend": 99.26,
-      "impr": 3692,
-      "clicks": 65,
-      "lpv": 57,
-      "mp": 5,
-      "s": 33,
-      "gp": 2
-    },
-    {
-      "d": "2026-10-14",
-      "spend": 77.38,
-      "impr": 3298,
-      "clicks": 49,
-      "lpv": 41,
-      "mp": 5,
-      "s": 27,
-      "gp": 1
-    },
-    {
-      "d": "2026-10-15",
-      "spend": 86.29,
-      "impr": 4141,
-      "clicks": 46,
-      "lpv": 37,
-      "mp": 1,
-      "s": 26,
-      "gp": 0
-    },
-    {
-      "d": "2026-10-16",
-      "spend": 58.57,
-      "impr": 2408,
-      "clicks": 30,
-      "lpv": 21,
-      "mp": 0,
-      "s": 19,
-      "gp": 0
-    },
-    {
-      "d": "2026-10-17",
-      "spend": 27.08,
-      "impr": 1127,
-      "clicks": 17,
-      "lpv": 13,
-      "mp": 1,
-      "s": 14,
-      "gp": 0
-    },
-    {
-      "d": "2026-10-18",
-      "spend": 39.93,
-      "impr": 1778,
-      "clicks": 15,
-      "lpv": 6,
-      "mp": 1,
-      "s": 10,
-      "gp": 1
-    },
-    {
-      "d": "2026-10-19",
-      "spend": 15.66,
-      "impr": 570,
-      "clicks": 5,
-      "lpv": 5,
-      "mp": 0,
-      "s": 5,
-      "gp": 0
-    },
-    {
-      "d": "2026-10-20",
-      "spend": 2.85,
-      "impr": 117,
-      "clicks": 1,
-      "lpv": 1,
-      "mp": 0,
-      "s": 0,
-      "gp": 0
-    },
-    {
-      "d": "2026-10-21",
-      "spend": 0,
-      "impr": 0,
-      "clicks": 0,
-      "lpv": 0,
-      "mp": 0,
-      "s": 3,
-      "gp": 1
-    },
-    {
-      "d": "2026-10-22",
-      "spend": 0,
-      "impr": 0,
-      "clicks": 0,
-      "lpv": 0,
-      "mp": 0,
-      "s": 1,
-      "gp": 0
-    },
-    {
-      "d": "2026-10-23",
-      "spend": 0,
-      "impr": 0,
-      "clicks": 0,
-      "lpv": 0,
-      "mp": 0,
-      "s": 1,
-      "gp": 0
-    },
-    {
-      "d": "2026-10-24",
-      "spend": 0,
-      "impr": 0,
-      "clicks": 0,
-      "lpv": 0,
-      "mp": 0,
-      "s": 1,
-      "gp": 0
-    },
-    {
-      "d": "2026-10-25",
-      "spend": 0,
-      "impr": 0,
-      "clicks": 0,
-      "lpv": 0,
-      "mp": 0,
-      "s": 2,
-      "gp": 0
-    },
-    {
-      "d": "2026-10-31",
-      "spend": 0,
-      "impr": 0,
-      "clicks": 0,
-      "lpv": 0,
-      "mp": 0,
-      "s": 1,
-      "gp": 0
-    },
-    {
-      "d": "2026-11-04",
-      "spend": 0,
-      "impr": 0,
-      "clicks": 0,
-      "lpv": 0,
-      "mp": 0,
-      "s": 2,
-      "gp": 0
-    },
-    {
-      "d": "2026-11-05",
-      "spend": 0,
-      "impr": 0,
-      "clicks": 0,
-      "lpv": 0,
-      "mp": 0,
-      "s": 1,
-      "gp": 0
-    },
-    {
-      "d": "2026-11-06",
-      "spend": 0,
-      "impr": 0,
-      "clicks": 0,
-      "lpv": 0,
-      "mp": 0,
-      "s": 1,
-      "gp": 0
-    },
-    {
-      "d": "2026-11-09",
-      "spend": 0,
-      "impr": 0,
-      "clicks": 0,
-      "lpv": 0,
-      "mp": 0,
-      "s": 2,
-      "gp": 0
-    }
+    {"d": "2026-10-12", "spend": 57.44, "impr": 2051, "clicks": 36, "lpv": 27, "mp": 2, "s": 19, "gp": 1},
+    {"d": "2026-10-13", "spend": 99.26, "impr": 3692, "clicks": 65, "lpv": 57, "mp": 5, "s": 33, "gp": 2},
+    {"d": "2026-10-14", "spend": 77.38, "impr": 3298, "clicks": 49, "lpv": 41, "mp": 5, "s": 27, "gp": 1},
+    {"d": "2026-10-15", "spend": 86.29, "impr": 4141, "clicks": 46, "lpv": 37, "mp": 1, "s": 26, "gp": 0},
+    {"d": "2026-10-16", "spend": 58.57, "impr": 2408, "clicks": 30, "lpv": 21, "mp": 0, "s": 19, "gp": 0},
+    {"d": "2026-10-17", "spend": 27.08, "impr": 1127, "clicks": 17, "lpv": 13, "mp": 1, "s": 14, "gp": 0},
+    {"d": "2026-10-18", "spend": 39.93, "impr": 1778, "clicks": 15, "lpv": 6, "mp": 1, "s": 10, "gp": 1},
+    {"d": "2026-10-19", "spend": 15.66, "impr": 570, "clicks": 5, "lpv": 5, "mp": 0, "s": 5, "gp": 0},
+    {"d": "2026-10-20", "spend": 2.85, "impr": 117, "clicks": 1, "lpv": 1, "mp": 0, "s": 0, "gp": 0},
+    {"d": "2026-10-21", "spend": 0, "impr": 0, "clicks": 0, "lpv": 0, "mp": 0, "s": 3, "gp": 1},
+    {"d": "2026-10-22", "spend": 0, "impr": 0, "clicks": 0, "lpv": 0, "mp": 0, "s": 1, "gp": 0},
+    {"d": "2026-10-23", "spend": 0, "impr": 0, "clicks": 0, "lpv": 0, "mp": 0, "s": 1, "gp": 0},
+    {"d": "2026-10-24", "spend": 0, "impr": 0, "clicks": 0, "lpv": 0, "mp": 0, "s": 1, "gp": 0},
+    {"d": "2026-10-25", "spend": 0, "impr": 0, "clicks": 0, "lpv": 0, "mp": 0, "s": 2, "gp": 0},
+    {"d": "2026-10-31", "spend": 0, "impr": 0, "clicks": 0, "lpv": 0, "mp": 0, "s": 1, "gp": 0},
+    {"d": "2026-11-04", "spend": 0, "impr": 0, "clicks": 0, "lpv": 0, "mp": 0, "s": 2, "gp": 0},
+    {"d": "2026-11-05", "spend": 0, "impr": 0, "clicks": 0, "lpv": 0, "mp": 0, "s": 1, "gp": 0},
+    {"d": "2026-11-06", "spend": 0, "impr": 0, "clicks": 0, "lpv": 0, "mp": 0, "s": 1, "gp": 0},
+    {"d": "2026-11-09", "spend": 0, "impr": 0, "clicks": 0, "lpv": 0, "mp": 0, "s": 2, "gp": 0}
   ]
 }
 </script>
 <!-- DATA:END -->
-<script src="../assets/dashboard.js?v=2"></script>
+<script src="../assets/dashboard.js?v=3"></script>
 </body>
 </html>

@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/site.css">
-<link rel="stylesheet" href="../assets/dashboard.css?v=2">
+<link rel="stylesheet" href="../assets/dashboard.css?v=3">
 </head>
 <body>
 <header class="wrap dash-top">
@@ -54,6 +54,27 @@
       </section>
     </div>
 
+    <section class="panel ks" id="ks" hidden>
+      <header><h2><i></i>Kickstarter</h2><small id="ks-src"></small></header>
+      <div class="tiles" id="ks-tiles"></div>
+      <div class="ks-split">
+        <div>
+          <h3>By ad link</h3>
+          <div class="scroll">
+            <table class="links">
+              <thead><tr><th>Ad link</th><th>Spend</th><th>Pledges</th><th>Pledged</th><th>Back per €1</th><th>Cost per pledge</th></tr></thead>
+              <tbody id="ks-links"></tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <h3>Where all pledges came from</h3>
+          <div class="bars wide" id="ks-channels"></div>
+        </div>
+      </div>
+      <p class="note" id="ks-note"></p>
+    </section>
+
     <div class="charts">
       <section class="panel chart" id="c-traffic"><h3>Clicks sent, sessions received</h3><div class="legend"></div><div class="plot"></div></section>
       <section class="panel chart" id="c-purch"><h3>Purchases per day</h3><div class="legend"></div><div class="plot"></div></section>
@@ -64,8 +85,8 @@
       <div class="scroll">
         <table>
           <thead>
-            <tr class="groups"><th></th><th colspan="5"><i style="background:var(--meta)"></i>Meta Ads</th><th colspan="2" class="sep"><i style="background:var(--ga)"></i>Analytics</th></tr>
-            <tr><th>Day</th><th>Spend</th><th>Impressions</th><th>Link clicks</th><th>Page loads</th><th>Purchases</th><th class="sep">Sessions</th><th>Purchases</th></tr>
+            <tr class="groups"><th></th><th colspan="5"><i style="background:var(--meta)"></i>Meta Ads</th><th colspan="2" class="sep"><i style="background:var(--ga)"></i>Analytics</th><th colspan="2" class="sep ks-col"><i style="background:var(--ks)"></i>Kickstarter ad links</th></tr>
+            <tr><th>Day</th><th>Spend</th><th>Impressions</th><th>Link clicks</th><th>Page loads</th><th>Purchases</th><th class="sep">Sessions</th><th>Purchases</th><th class="sep ks-col">Pledges</th><th class="ks-col">Pledged</th></tr>
           </thead>
           <tbody id="rows"></tbody>
         </table>
@@ -76,7 +97,7 @@
 
 <footer class="wrap dash-foot">
   <p id="sources"></p>
-  <p>Analytics figures count only visits that arrived from the paid ads. Sales value is left out because neither source records it reliably.</p>
+  <p id="foot-note">Analytics figures count only visits that arrived from the paid ads. Sales value is left out because neither source records it reliably.</p>
 </footer>
 
 <!-- DATA:START (the daily update replaces only the JSON between these two markers) -->
@@ -145,6 +166,6 @@
 }
 </script>
 <!-- DATA:END -->
-<script src="../assets/dashboard.js?v=2"></script>
+<script src="../assets/dashboard.js?v=3"></script>
 </body>
 </html>

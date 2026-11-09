@@ -101,3 +101,22 @@ td.zero { color: var(--ink-3); }
 .replay input { flex: 1 1 180px; accent-color: var(--ink); min-width: 0; }
 .replay .rb { display: inline-flex; gap: 14px; }
 .replay a { color: var(--ink); text-underline-offset: 3px; }
+
+/* Kickstarter (optional third source) */
+:root { --ks: #1baf7a; }
+@media (prefers-color-scheme: dark) { :root { --ks: #199e70; } }
+.panel.ks { margin-top: 16px; }
+.panel.ks h2 i { background: var(--ks); }
+.panel.ks .tiles { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+.ks-split { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 28px; margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--line); }
+.ks-split h3 { font-size: .98rem; margin-bottom: 12px; }
+table.links { min-width: 520px; }
+table.links td:first-child { white-space: normal; min-width: 11em; }
+table.links td small { display: block; color: var(--ink-3); font-size: .8rem; }
+.bars.wide .bar { grid-template-columns: minmax(8em, 11em) 1fr auto; }
+.bars.wide .bar .x { white-space: nowrap; }
+.ks-col { display: none; }
+.has-ks .ks-col { display: table-cell; }
+.has-ks .daily table { min-width: 800px; }
+@media (max-width: 900px) { .ks-split { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 520px) { .panel.ks .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

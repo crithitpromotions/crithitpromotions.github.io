@@ -49,6 +49,7 @@
     if (D.meta) D.meta.reach = reach;
     D.status = today && +today.spend > 0 ? 'Running' : (asof > D.replay.end ? 'Ended' : 'Paused');
     D.updated = null;
+    delete D.kickstarter;
     $('updated').dataset.replay = 'As it stood at the end of ' + dayFmt.format(parseDay(asof));
   })();
 
@@ -76,6 +77,31 @@
   var T = {}; keys.forEach(function (k) { T[k] = days.reduce(function (a, r) { return a + r[k]; }, 0); });
   var first = days[0].d, last = days[days.length - 1].d;
   $('period').textContent = dayFmt.format(parseDay(first)) + ' to ' + dayFmt.format(parseDay(last)) + ' ' + last.slice(0, 4);
+
+  /* ---------- Kickstarter (optional): referrer export, see README ---------- */
+  var K = D.kickstarter && D.kickstarter.days && D.kickstarter.days.length ? D.kickstarter : null;
+  var KD = {}, KT = { kp: 0, ka: 0, tp: 0, ta: 0 }, kAdSpend = 0, kLinks = [], kChannels = [];
+  if (K) (function () {
+    var refs = {}; (K.ad_links || []).forEach(function (l) { refs[l.ref] = { l: l, p: 0, a: 0 }; kAdSpend += +l.spend || 0; });
+    var ch = {};
+    K.days.forEach(function (r) {
+      var o = KD[r.d] = { kp: 0, ka: 0 };
+      Object.keys(r.by).forEach(function (c) {
+        var p = +r.by[c][0] || 0, a = +r.by[c][1] || 0;
+        KT.tp += p; KT.ta += a;
+        var name = refs[c] ? 'Ads' : c;
+        if (refs[c]) { refs[c].p += p; refs[c].a += a; o.kp += p; o.ka += a; KT.kp += p; KT.ka += a; }
+        (ch[name] = ch[name] || [0, 0]); ch[name][0] += p; ch[name][1] += a;
+      });
+    });
+    kLinks = (K.ad_links || []).map(function (l) { return refs[l.ref]; });
+    kChannels = Object.keys(ch).map(function (c) { return [c, ch[c][0], ch[c][1]]; }).sort(function (a, b) { return b[2] - a[2]; });
+    document.body.classList.add('has-ks');
+  })();
+  var exportedFmt = function () {
+    var e = K && (K.exported || K.through); if (!e) return '';
+    return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(parseDay(e.slice(0, 10)));
+  };
 
   /* ---------- Meta tiles ---------- */
   var tile = function (k, v, n, big) { return '<div class="tile' + (big ? ' big' : '') + '"><div class="k">' + k + '</div><div class="v">' + v + '</div>' + (n ? '<div class="n">' + n + '</div>' : '') + '</div>'; };
@@ -109,11 +135,35 @@
     }).join('');
   };
   $('cmp-traffic').innerHTML = bars([['Link clicks', T.clicks, 'meta'], ['Page loads', T.lpv, 'meta'], ['Sessions', T.s, 'ga']]);
-  $('cmp-purch').innerHTML = bars([['Meta', T.mp, 'meta'], ['Analytics', T.gp, 'ga']]);
-  var cA = div(T.spend, T.mp), cB = div(T.spend, T.gp);
-  var lo = Math.min(cA == null ? Infinity : cA, cB == null ? Infinity : cB), hi = Math.max(cA || 0, cB || 0);
+  $('cmp-purch').innerHTML = bars([['Meta', T.mp, 'meta'], ['Analytics', T.gp, 'ga']].concat(K ? [['Kickstarter', KT.kp, 'ks']] : []));
+  var costs = [div(T.spend, T.mp), div(T.spend, T.gp)].concat(K ? [div(kAdSpend, KT.kp)] : []).filter(function (v) { return v != null; });
+  var lo = costs.length ? Math.min.apply(null, costs) : Infinity, hi = costs.length ? Math.max.apply(null, costs) : 0;
   $('cpp-range').textContent = !isFinite(lo) ? 'No purchases recorded yet' : (Math.abs(hi - lo) < 0.005 ? money(lo) : money(lo) + ' to ' + money(hi));
   if (D.note) $('note').textContent = D.note;
+
+  if (K) {
+    $('ks').hidden = false;
+    $('ks-src').textContent = 'Referrer report, exported ' + exportedFmt();
+    $('ks-tiles').innerHTML =
+      tile('Raised', money(KT.ta, 0), num(KT.tp) + ' pledges, all sources', true) +
+      tile('Pledged through ad links', money(KT.ka, 0), num(KT.kp) + ' pledges, ' + pct(div(KT.ka, KT.ta), 0) + ' of raised') +
+      tile('Ad spend', money(kAdSpend), 'through ' + dayFmt.format(parseDay(K.through))) +
+      tile('Back per €1 of ads', div(KT.ka, kAdSpend) == null ? '–' : (KT.ka / kAdSpend).toFixed(2) + 'x', 'pledged through ad links ÷ spend') +
+      tile('Cost per pledge', money(div(kAdSpend, KT.kp)), 'spend ÷ pledges through ad links') +
+      (K.dropped && K.dropped[0] ? tile('Dropped pledges', num(K.dropped[0]), money(K.dropped[1], 0)) : '');
+    var lrow = function (name, sub, sp, p, a, cls) {
+      return '<tr class="' + (cls || '') + '"><td>' + name + (sub ? '<small>' + sub + '</small>' : '') + '</td><td>' + money(sp) + '</td><td>' + num(p) + '</td><td>' + money(a, 0) +
+        '</td><td>' + (div(a, sp) == null ? '–' : (a / sp).toFixed(2) + 'x') + '</td><td>' + money(div(sp, p)) + '</td></tr>';
+    };
+    $('ks-links').innerHTML = lrow('All ad links', null, kAdSpend, KT.kp, KT.ka, 'total') +
+      kLinks.map(function (x) { return lrow(x.l.label || x.l.ref, 'ref: ' + x.l.ref, +x.l.spend, x.p, x.a); }).join('');
+    var cmax = kChannels.length ? kChannels[0][2] || 1 : 1;
+    $('ks-channels').innerHTML = kChannels.map(function (c) {
+      return '<div class="bar"><span class="l">' + c[0] + '</span><span class="t"><b style="width:' + (c[2] / cmax * 100).toFixed(1) + '%;background:var(--ks)"></b></span><span class="x">' + money(c[2], 0) + ' (' + pct(div(c[2], KT.ta), 0) + ')</span></div>';
+    }).join('');
+    $('ks-note').textContent = 'Kickstarter credits each pledge to the last link the backer used, so someone who saw an ad and came back later through an email counts under email. Read the ad figures as a minimum. ' +
+      'Kickstarter figures run to ' + dayFmt.format(parseDay(K.through)) + ', the day of the latest export.';
+  }
 
   /* ---------- charts ---------- */
   // continuous day axis from first to last day, missing days are zero
@@ -121,7 +171,9 @@
   var axis = [];
   for (var t = parseDay(first).getTime(), end = parseDay(last).getTime(); t <= end; t += 864e5) {
     var k = new Date(t).toISOString().slice(0, 10);
-    axis.push(byDay[k] || { d: k, spend: 0, impr: 0, clicks: 0, lpv: 0, mp: 0, s: 0, gp: 0 });
+    var ar = byDay[k] || { d: k, spend: 0, impr: 0, clicks: 0, lpv: 0, mp: 0, s: 0, gp: 0 };
+    ar.kp = KD[k] ? KD[k].kp : 0;
+    axis.push(ar);
   }
 
   function niceMax(v) {
@@ -191,14 +243,23 @@
 
   chart($('c-spend'), { title: 'Spend per day', type: 'bar', fmt: money, axisFmt: function (v) { return money(v, 0); }, series: [{ key: 'spend', label: 'Spend', color: 'meta' }] });
   chart($('c-traffic'), { title: 'Link clicks and sessions per day', type: 'line', series: [{ key: 'clicks', label: 'Link clicks (Meta)', color: 'meta' }, { key: 's', label: 'Sessions (Analytics)', color: 'ga' }] });
-  chart($('c-purch'), { title: 'Purchases per day', type: 'bar', series: [{ key: 'mp', label: 'Meta', color: 'meta' }, { key: 'gp', label: 'Analytics', color: 'ga' }] });
+  chart($('c-purch'), { title: 'Purchases per day', type: 'bar', series: [{ key: 'mp', label: 'Meta', color: 'meta' }, { key: 'gp', label: 'Analytics', color: 'ga' }].concat(K ? [{ key: 'kp', label: 'Kickstarter', color: 'ks' }] : []) });
 
   /* ---------- daily table ---------- */
   var cell = function (v, f, cls) { return '<td class="' + (cls || '') + (v ? '' : ' zero') + '">' + (v ? f(v) : (f === money ? '–' : '0')) + '</td>'; };
-  var row = function (label, r, cls) {
-    return '<tr class="' + (cls || '') + '"><td>' + label + '</td>' + cell(r.spend, money) + cell(r.impr, num) + cell(r.clicks, num) + cell(r.lpv, num) + cell(r.mp, num) + cell(r.s, num, 'sep') + cell(r.gp, num) + '</tr>';
+  var kcells = function (d, tot) {
+    if (!K) return '';
+    if (!tot && d > K.through) return '<td class="sep ks-col zero">–</td><td class="ks-col zero">–</td>';
+    var o = tot ? KT : (KD[d] || { kp: 0, ka: 0 });
+    return cell(o.kp, num, 'sep ks-col') + cell(o.ka, function (v) { return money(v, 0); }, 'ks-col');
   };
-  $('rows').innerHTML = row('Total', T, 'total') + days.slice().reverse().map(function (r) { return row(dayLong.format(parseDay(r.d)), r); }).join('');
+  var row = function (label, r, cls, tot) {
+    return '<tr class="' + (cls || '') + '"><td>' + label + '</td>' + cell(r.spend, money) + cell(r.impr, num) + cell(r.clicks, num) + cell(r.lpv, num) + cell(r.mp, num) + cell(r.s, num, 'sep') + cell(r.gp, num) + kcells(r.d, tot) + '</tr>';
+  };
+  var tdays = days.slice();
+  if (K) Object.keys(KD).forEach(function (d) { if (!byDay[d] && KD[d].kp) tdays.push({ d: d, spend: 0, impr: 0, clicks: 0, lpv: 0, mp: 0, s: 0, gp: 0 }); });
+  tdays.sort(function (a, b) { return a.d < b.d ? 1 : -1; });
+  $('rows').innerHTML = row('Total', T, 'total', true) + tdays.map(function (r) { return row(dayLong.format(parseDay(r.d)), r); }).join('');
 
   renderFoot();
 
@@ -206,6 +267,8 @@
     var bits = [];
     if (D.meta && D.meta.account) bits.push('Meta Ads account: ' + D.meta.account);
     if (D.analytics && D.analytics.property) bits.push('Google Analytics property: ' + D.analytics.property + (D.analytics.filter ? ' (' + D.analytics.filter + ')' : ''));
+    if (K) bits.push('Kickstarter referrer report exported ' + exportedFmt());
     $('sources').textContent = bits.join('. ') + (bits.length ? '.' : '');
+    if (K) $('foot-note').textContent = 'Analytics figures count only visits that arrived from the paid ads. Pledge amounts come from Kickstarter only; Meta and Analytics do not record them reliably.';
   }
 })();
